@@ -1,0 +1,11 @@
+name: Diag2
+on: workflow_dispatch
+jobs:
+  intel15:
+    runs-on: macos-15-intel
+    steps:
+      - run: sw_vers && xcodebuild -version
+  arm15:
+    runs-on: macos-15
+    steps:
+      - run: sw_vers && xcodebuild -version
