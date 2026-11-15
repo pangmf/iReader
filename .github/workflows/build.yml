@@ -1,0 +1,48 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build (unsigned archive)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project WeReadLike.xcodeproj \
+            -scheme WeReadLike \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/iReader.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive
+
+      - name: Package ipa
+        run: |
+          mkdir -p build/Payload
+          cp -R build/iReader.xcarchive/Products/Applications/iReader.app build/Payload/
+          rm -rf build/Payload/iReader.app/_CodeSignature
+          cd build
+          zip -qry iReader-unsigned.ipa Payload
+          ls -lh iReader-unsigned.ipa
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iReader-ipa
+          path: build/iReader-unsigned.ipa
+          retention-days: 30
