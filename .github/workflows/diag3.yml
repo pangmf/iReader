@@ -1,0 +1,19 @@
+name: Diag3
+on: workflow_dispatch
+jobs:
+  probe15:
+    runs-on: macos-15
+    steps:
+      - name: Xcodes on macos-15
+        run: |
+          ls -1 /Applications | grep -i "^Xcode" || true
+          echo "--- default ---"; xcodebuild -version
+          echo "--- sdks ---"; xcodebuild -showsdks | grep -i iphone || true
+  probe26:
+    runs-on: macos-26
+    steps:
+      - name: Xcodes on macos-26
+        run: |
+          ls -1 /Applications | grep -i "^Xcode" || true
+          echo "--- default ---"; xcodebuild -version
+          echo "--- sdks ---"; xcodebuild -showsdks | grep -i iphone || true
