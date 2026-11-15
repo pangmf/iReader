@@ -6,6 +6,6 @@ jobs:
     steps:
       - run: echo ok && uname -a
   mac:
-    runs-on: macos-14
+    runs-on: macos-13
     steps:
       - run: echo ok && xcodebuild -version
