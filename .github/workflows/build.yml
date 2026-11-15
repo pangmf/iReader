@@ -4,18 +4,34 @@ on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      xcode:
+        description: '指定 Xcode 版本（如 27.1；留空用镜像默认）'
+        required: false
+        default: ''
 
 jobs:
   build:
-    runs-on: macos-15
-    timeout-minutes: 30
+    # macos-14 已退役；macos-26 镜像是当前 SDK 最新的一档
+    runs-on: macos-26
+    timeout-minutes: 40
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Select Xcode
+        env:
+          XCODE_INPUT: ${{ inputs.xcode }}
+        run: |
+          echo "镜像自带："
+          ls -1 /Applications | grep -i "^Xcode" || true
+          if [ -n "$XCODE_INPUT" ] && [ -d "/Applications/Xcode_${XCODE_INPUT}.app" ]; then
+            sudo xcode-select -s "/Applications/Xcode_${XCODE_INPUT}.app"
+          fi
+          echo "--- 使用 ---"
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i iphoneos || true
 
       - name: Build (unsigned archive)
         run: |
@@ -30,6 +46,11 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             archive
+
+      - name: Report SDK used
+        run: |
+          BIN=build/iReader.xcarchive/Products/Applications/iReader.app/iReader
+          otool -l "$BIN" | grep -A5 LC_BUILD_VERSION || true
 
       - name: Package ipa
         run: |

@@ -13,11 +13,14 @@ struct BookshelfView: View {
     @State private var selectedGroup: String = "全部"
     @State private var sortByRecent = true
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
+    @State private var availableWidth: CGFloat = 0
+
+    /// 按窗口实际宽度算列数：手机 3 列，Duo 内屏 / iPad 自动到 5~8 列
+    private var columns: [GridItem] {
+        let usable = max(availableWidth - 40, 320)
+        let count = max(3, min(8, Int(usable / 118)))
+        return Array(repeating: GridItem(.flexible(), spacing: 16), count: count)
+    }
 
     var body: some View {
         NavigationStack {
@@ -155,6 +158,7 @@ struct BookshelfView: View {
                 }
             }
             .padding(.horizontal, 20)
+            .readAvailableWidth { availableWidth = $0 }
         }
     }
 

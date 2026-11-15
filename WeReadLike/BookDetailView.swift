@@ -57,6 +57,8 @@ struct BookDetailView: View {
                     catalogSection
                 }
                 .padding(.bottom, 40)
+                .frame(maxWidth: WDLayout.contentWidth, alignment: .leading)
+                .frame(maxWidth: .infinity)
             }
 
             topBar

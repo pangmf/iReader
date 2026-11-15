@@ -10,31 +10,96 @@ struct RootTabView: View {
     @EnvironmentObject var store: LibraryStore
     @State private var selection: Int = 0
 
+    private let items: [(icon: String, active: String, title: String)] = [
+        ("books.vertical", "books.vertical.fill", "书架"),
+        ("safari", "safari.fill", "发现"),
+        ("person", "person.fill", "我")
+    ]
+
     var body: some View {
-        TabView(selection: $selection) {
-            BookshelfView()
-                .tabItem {
-                    Image(systemName: "books.vertical")
-                    Text("书架")
+        GeometryReader { proxy in
+            let useRail = proxy.size.width >= WDLayout.railBreakpoint
+            if useRail {
+                HStack(spacing: 0) {
+                    rail
+                    pages
                 }
-                .tag(0)
-
-            DiscoverView()
-                .tabItem {
-                    Image(systemName: "safari")
-                    Text("发现")
-                }
-                .tag(1)
-
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person")
-                    Text("我")
-                }
-                .tag(2)
+                .background(WD.background.ignoresSafeArea())
+            } else {
+                pages.safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+            }
         }
-        .background(WD.background)
         .toast(store.toast)
+    }
+
+    /// 三个页面常驻，切换只改可见性，保住各自的滚动位置与导航栈
+    private var pages: some View {
+        ZStack {
+            BookshelfView().opacity(selection == 0 ? 1 : 0).allowsHitTesting(selection == 0)
+            DiscoverView().opacity(selection == 1 ? 1 : 0).allowsHitTesting(selection == 1)
+            ProfileView().opacity(selection == 2 ? 1 : 0).allowsHitTesting(selection == 2)
+        }
+    }
+
+    /// 宽窗口：竖排侧栏（折叠机内屏、iPad、横屏）
+    private var rail: some View {
+        VStack(spacing: 6) {
+            ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
+                Button {
+                    selection = idx
+                } label: {
+                    VStack(spacing: 5) {
+                        Image(systemName: selection == idx ? item.active : item.icon)
+                            .font(.system(size: 19, weight: selection == idx ? .semibold : .regular))
+                        Text(item.title)
+                            .font(.system(size: 11))
+                    }
+                    .foregroundColor(selection == idx ? WD.accent : WD.subtext)
+                    .frame(width: 76, height: 62)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(selection == idx ? Color(hex: 0xE9F1FC) : Color.clear)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+        }
+        .padding(.top, 14)
+        .frame(width: 88)
+        .frame(maxHeight: .infinity)
+        .background(WD.card)
+        .overlay(alignment: .trailing) {
+            Rectangle().fill(WD.line).frame(width: 0.5)
+        }
+    }
+
+    /// 窄窗口：底部标签栏
+    private var bottomBar: some View {
+        HStack(spacing: 0) {
+            ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
+                Button {
+                    selection = idx
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: selection == idx ? item.active : item.icon)
+                            .font(.system(size: 20))
+                        Text(item.title)
+                            .font(.system(size: 10))
+                    }
+                    .foregroundColor(selection == idx ? WD.accent : WD.subtext)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+        .background(WD.card.ignoresSafeArea(edges: .bottom))
+        .overlay(alignment: .top) {
+            Rectangle().fill(WD.line).frame(height: 0.5)
+        }
     }
 }
 

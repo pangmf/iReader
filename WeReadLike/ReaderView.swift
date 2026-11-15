@@ -82,7 +82,8 @@ struct ReaderView: View {
                     }
                     .padding(.horizontal, 22)
                     .padding(.bottom, 90)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: WDLayout.readableWidth, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .id(index)
                 }
             }

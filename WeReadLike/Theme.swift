@@ -140,3 +140,35 @@ extension View {
         }
     }
 }
+
+
+// MARK: - 自适应布局（iPhone Duo 折叠 / iPad / 分屏）
+
+/// 读取视图实际可用宽度。按窗口排版，而不是按屏幕排版——
+/// 折叠机展开、分屏、旋转都会改变窗口宽度，屏幕宽度却不一定变。
+struct WDWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+extension View {
+    func readAvailableWidth(_ action: @escaping (CGFloat) -> Void) -> some View {
+        background(
+            GeometryReader { proxy in
+                Color.clear.preference(key: WDWidthKey.self, value: proxy.size.width)
+            }
+        )
+        .onPreferenceChange(WDWidthKey.self) { action($0) }
+    }
+}
+
+enum WDLayout {
+    /// 超过这个宽度改用侧边竖排导航（Duo 内屏、iPad、横屏）
+    static let railBreakpoint: CGFloat = 700
+    /// 正文可读宽度上限，防止宽屏出现超长行
+    static let readableWidth: CGFloat = 760
+    /// 列表页内容宽度上限
+    static let contentWidth: CGFloat = 980
+}

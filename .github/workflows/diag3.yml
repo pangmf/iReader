@@ -1,9 +1,0 @@
-name: Diag3
-on: workflow_dispatch
-jobs:
-  probe27:
-    runs-on: macos-27
-    steps:
-      - run: |
-          ls -1 /Applications | grep -i "^Xcode" || true
-          xcodebuild -version
