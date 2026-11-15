@@ -23,27 +23,26 @@ extension KeyedDecodingContainer where Key == AnyCodingKey {
 
     func str(_ key: String) -> String? {
         let k = AnyCodingKey(stringValue: key)
-        if let v = try? decodeIfPresent(String.self, forKey: k), let v = v { return v }
-        if let v = try? decodeIfPresent(Int.self, forKey: k), let v = v { return String(v) }
-        if let v = try? decodeIfPresent(Double.self, forKey: k), let v = v { return Self.trim(v) }
-        if let v = try? decodeIfPresent(Bool.self, forKey: k), let v = v { return v ? "true" : "false" }
+        if let v = try? decode(String.self, forKey: k) { return v }
+        if let v = try? decode(Int.self, forKey: k) { return String(v) }
+        if let v = try? decode(Double.self, forKey: k) { return Self.trim(v) }
+        if let v = try? decode(Bool.self, forKey: k) { return v ? "true" : "false" }
         return nil
     }
 
     func intValue(_ key: String) -> Int {
         let k = AnyCodingKey(stringValue: key)
-        if let v = try? decodeIfPresent(Int.self, forKey: k), let v = v { return v }
-        if let v = try? decodeIfPresent(String.self, forKey: k), let v = v, let n = Int(v) { return n }
+        if let v = try? decode(Int.self, forKey: k) { return v }
+        if let v = try? decode(Double.self, forKey: k) { return Int(v) }
+        if let v = try? decode(String.self, forKey: k), let n = Int(v) { return n }
         return 0
     }
 
     func boolValue(_ key: String, default def: Bool = false) -> Bool {
         let k = AnyCodingKey(stringValue: key)
-        if let v = try? decodeIfPresent(Bool.self, forKey: k), let v = v { return v }
-        if let v = try? decodeIfPresent(String.self, forKey: k), let v = v {
-            return v == "true" || v == "1"
-        }
-        if let v = try? decodeIfPresent(Int.self, forKey: k), let v = v { return v != 0 }
+        if let v = try? decode(Bool.self, forKey: k) { return v }
+        if let v = try? decode(String.self, forKey: k) { return v == "true" || v == "1" }
+        if let v = try? decode(Int.self, forKey: k) { return v != 0 }
         return def
     }
 

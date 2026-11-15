@@ -86,7 +86,7 @@ enum HTMLParser {
             (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122)
                 || c == 45 || c == 58 || c == 95
         }
-        func findGT(from start: Int) -> Int {
+        func findGT(from start: Int) -> Int? {
             var j = start
             while j < len {
                 let c = src.character(at: j)
@@ -98,7 +98,7 @@ enum HTMLParser {
                 }
                 j += 1
             }
-            return -1
+            return nil
         }
         func closeTag(_ name: String) {
             var idx = stack.count - 1

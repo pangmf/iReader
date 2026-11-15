@@ -108,7 +108,9 @@ final class HTTPClient {
         switch n {
         case "utf-8", "utf8": return .utf8
         case "gbk", "gb2312", "gb-2312", "gb18030", "gb-18030": return .gb_18030_2000
-        case "big5", "big-5": return .big5
+        case "big5", "big-5":
+            let cf = CFStringEncoding(CFStringEncodings.big5.rawValue)
+            return String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(cf))
         case "iso-8859-1", "latin1": return .isoLatin1
         default:
             let cf = CFStringConvertIANACharSetNameToEncoding(n as CFString)
